@@ -7,11 +7,6 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
-import jakarta.persistence.Lob
-import org.hibernate.annotations.JdbcType
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
-import org.springframework.data.repository.init.ResourceReader
 
 @Entity
 class Recipe(
@@ -35,7 +30,7 @@ class Recipe(
 fun Recipe.toModel() = RecipeModel(
     id = this.id ?: 0,
     name = this.name,
-    type = this.type,
+    type = jacksonObjectMapper().readValue("\"${this.type}\""),
     instructions = this.instructions,
     ingredients = jacksonObjectMapper().readValue(this.ingredients)
 )
