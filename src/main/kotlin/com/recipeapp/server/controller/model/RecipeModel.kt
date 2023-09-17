@@ -1,6 +1,5 @@
 package com.recipeapp.server.controller.model
 
-import com.fasterxml.jackson.annotation.JsonValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.recipeapp.server.repository.model.Recipe
 
@@ -17,16 +16,16 @@ data class RecipeModel(
         val unit: String
     )
 
-    enum class Type(@JsonValue val value: String) {
-        BREAKFAST("Breakfast"),
-        LUNCH("Lunch"),
-        DINNER("Dinner")
+    enum class Type {
+        BREAKFAST,
+        LUNCH,
+        DINNER
     }
-}
 
-fun RecipeModel.toNewDBModel() = Recipe(
-    name = this.name,
-    type = this.type.value,
-    instructions = this.instructions,
-    ingredients = jacksonObjectMapper().writeValueAsString(this.ingredients)
-)
+    fun toNewDBModel() = Recipe(
+        name = this.name,
+        type = this.type,
+        instructions = this.instructions,
+        ingredients = jacksonObjectMapper().writeValueAsString(this.ingredients)
+    )
+}

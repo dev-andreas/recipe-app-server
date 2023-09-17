@@ -3,18 +3,15 @@ package com.recipeapp.server.repository.model
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.recipeapp.server.controller.model.RecipeModel
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.Id
+import jakarta.persistence.*
 
 @Entity
 class Recipe(
     @Column(length = 64)
     var name: String,
 
-    @Column(length = 9)
-    var type: String,
+    @Enumerated(EnumType.STRING)
+    var type: RecipeModel.Type, // TODO: Change back to string type
 
     @Column(columnDefinition = "TEXT")
     var instructions: String,
@@ -25,12 +22,12 @@ class Recipe(
     @Id
     @GeneratedValue
     var id: Long? = null
-}
 
-fun Recipe.toModel() = RecipeModel(
-    id = this.id ?: 0,
-    name = this.name,
-    type = jacksonObjectMapper().readValue("\"${this.type}\""),
-    instructions = this.instructions,
-    ingredients = jacksonObjectMapper().readValue(this.ingredients)
-)
+    fun toModel() = RecipeModel(
+        id = this.id ?: 0,
+        name = this.name,
+        type = this.type,
+        instructions = this.instructions,
+        ingredients = jacksonObjectMapper().readValue(this.ingredients)
+    )
+}
