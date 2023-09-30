@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.recipeapp.server.controller.model.RecipeModel
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 class Recipe(
@@ -11,13 +13,17 @@ class Recipe(
     var name: String,
 
     @Enumerated(EnumType.STRING)
-    var type: RecipeModel.Type, // TODO: Change back to string type
+    var type: RecipeModel.Type,
 
     @Column(columnDefinition = "TEXT")
     var instructions: String,
 
     @Column(columnDefinition = "TEXT")
-    var ingredients: String
+    var ingredients: String,
+
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    var user: User
 ) {
     @Id
     @GeneratedValue
@@ -28,6 +34,6 @@ class Recipe(
         name = this.name,
         type = this.type,
         instructions = this.instructions,
-        ingredients = jacksonObjectMapper().readValue(this.ingredients)
+        ingredients = jacksonObjectMapper().readValue(this.ingredients),
     )
 }

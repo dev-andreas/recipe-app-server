@@ -3,7 +3,6 @@ package com.recipeapp.server.security
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.recipeapp.server.controller.response.ErrorResponse
 import jakarta.servlet.FilterChain
-import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -17,7 +16,11 @@ class JwtFilter(
     val jwtService: JwtService
 ) : OncePerRequestFilter() {
 
-    val shouldNotFilterUrls = listOf("/api/v1/auth/")
+    val shouldNotFilterUrls = listOf(
+        "/api/v1/auth/login",
+        "/api/v1/auth/register",
+        "/api/v1/auth/refresh",
+    )
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -51,7 +54,6 @@ class JwtFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.requestURI
-        println(path)
         return shouldNotFilterUrls.map { path.startsWith(it) }.any { it }
     }
 }

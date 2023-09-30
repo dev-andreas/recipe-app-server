@@ -25,9 +25,55 @@ class AuthService(
     val authenticationManager: AuthenticationManager
 ) {
 
+    private fun checkPasswordStrength(password: String): String {
+        if (password.trim() == "") {
+            return "Password must not be empty"
+        }
+        if (password.length < 8) {
+            return "Password must be at least 8 characters"
+        }
+
+        if (!"[0-9]".toRegex().containsMatchIn(password)) {
+            return "Password must contain at least one numeric character"
+        }
+
+        if (!"[\\§\\\$\\%\\&\\/\\=\\\\\\+\\#\\-\\_\\.]".toRegex().containsMatchIn(password)) {
+            return "Password must contain at least one of the following characters: §$%&/=\\+#-_."
+        }
+
+        if (!"[0-9a-zA-Z\\§\\\$\\%\\&\\/\\=\\\\\\+\\#\\-\\_\\.]*".toRegex().matches(password)) {
+            return "Password can only contain alphanumeric characters and §$%&/=\\+#-_."
+        }
+
+        return ""
+    }
+
     fun register(registerRequest: RegisterRequest) {
+
         if (userRepository.findByEmail(registerRequest.email).isPresent) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail already exists.")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail already exists")
+        }
+
+        if (registerRequest.email.trim() == "") {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail must not be empty")
+        }
+
+        if (!"^\\S+@\\S+$".toRegex().matches(registerRequest.email)) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail is invalid")
+        }
+
+        if (registerRequest.lastName.trim() == "") {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name must not be empty")
+        }
+
+        if (registerRequest.firstName.trim() == "") {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "First name must not be empty")
+        }
+
+        val passwordStrength = checkPasswordStrength(registerRequest.password)
+
+        if (passwordStrength != "") {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, passwordStrength)
         }
 
         userRepository.save(
@@ -36,7 +82,7 @@ class AuthService(
                 firstName = registerRequest.firstName,
                 lastName = registerRequest.lastName,
                 passw = passwordEncoder.encode(registerRequest.password),
-                role = Role.NONE
+                role = Role.RECIPE_USER
             )
         )
     }
@@ -52,7 +98,7 @@ class AuthService(
         val accessToken = jwtService.createToken(user, JwtType.ACCESS)
         val refreshToken = jwtService.createToken(user, JwtType.REFRESH)
 
-        return LoginResponse(accessToken, refreshToken)
+        return LoginResponse(accessToken, refreshToken, user.email, user.firstName, user.lastName)
     }
 
     fun refresh(request: HttpServletRequest): RefreshResponse {
