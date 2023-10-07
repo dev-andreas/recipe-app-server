@@ -3,6 +3,7 @@ package com.recipeapp.server.repository.model
 import com.recipeapp.server.security.Role
 import jakarta.persistence.*
 import org.springframework.security.core.userdetails.UserDetails
+import java.util.Date
 
 @Entity
 @Table(name = "api_user")
@@ -21,7 +22,10 @@ class User(
     var passw: String,
 
     @Enumerated(EnumType.STRING)
-    var role: Role
+    var role: Role,
+
+    @Temporal(TemporalType.TIMESTAMP)
+    var tokenValidAt: Date
 
 ) : UserDetails {
     @Id

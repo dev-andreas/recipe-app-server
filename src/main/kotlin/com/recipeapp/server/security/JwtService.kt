@@ -28,13 +28,13 @@ class JwtService(
         }
     }
 
-    fun createToken(user: User, jwtType: JwtType): String {
+    fun createToken(user: User, jwtType: JwtType, issuedAt: Date = Date()): String {
         val algorithm = Algorithm.HMAC512(secret)
 
         return JWT.create()
             .withIssuer(user.email)
             .withClaim("type", jwtType.type)
-            .withIssuedAt(Date())
+            .withIssuedAt(issuedAt)
             .withExpiresAt(Date(System.currentTimeMillis() + getExpiration(jwtType)))
             .sign(algorithm)
     }
@@ -48,10 +48,16 @@ class JwtService(
                 .verify(token)
             val email = jwt.issuer
             val type = jwt.getClaim("type").asString()
-            if (type == jwtType.type)
-                userRepository.findByEmail(email)
-            else
+            val user = userRepository.findByEmail(email).orElseThrow()
+            if (type == jwtType.type) {
+                if (user.tokenValidAt.before(jwt.issuedAt)) {
+                    Optional.of(user)
+                } else {
+                    Optional.empty()
+                }
+            } else {
                 Optional.empty()
+            }
 
         } catch (e: JWTVerificationException) {
             Optional.empty()

@@ -32,6 +32,9 @@ class AuthController(
     @PostMapping("/login")
     fun login(@RequestBody loginRequest: LoginRequest) = authService.login(loginRequest)
 
+    @PostMapping("/logout")
+    fun logout() = authService.logout()
+
     @PostMapping("/refresh")
     fun refresh(request: HttpServletRequest) = authService.refresh(request)
 }

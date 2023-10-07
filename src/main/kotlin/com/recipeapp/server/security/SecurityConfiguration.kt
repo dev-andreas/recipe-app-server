@@ -27,6 +27,13 @@ class SecurityConfiguration {
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .headers { hc ->
+                hc
+                    .xssProtection {  }
+                    .contentSecurityPolicy { csp ->
+                        csp.policyDirectives("script-src 'self'")
+                    }
+            }
 
         return http.build()
     }

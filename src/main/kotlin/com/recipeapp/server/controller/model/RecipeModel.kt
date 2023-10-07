@@ -3,6 +3,7 @@ package com.recipeapp.server.controller.model
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.recipeapp.server.repository.model.Recipe
 import com.recipeapp.server.repository.model.User
+import org.owasp.encoder.Encode.forHtml
 import org.springframework.security.core.context.SecurityContextHolder
 
 data class RecipeModel(
@@ -25,10 +26,10 @@ data class RecipeModel(
     }
 
     fun toNewDBModel() = Recipe(
-        name = this.name,
+        name = forHtml(this.name),
         type = this.type,
-        instructions = this.instructions,
-        ingredients = jacksonObjectMapper().writeValueAsString(this.ingredients),
+        instructions = forHtml(this.instructions),
+        ingredients = forHtml(jacksonObjectMapper().writeValueAsString(this.ingredients)),
         user = SecurityContextHolder.getContext().authentication.principal as User
     )
 }

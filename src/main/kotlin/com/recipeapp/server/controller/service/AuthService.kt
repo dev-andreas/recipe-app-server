@@ -13,9 +13,12 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.util.*
+
 
 @Service
 class AuthService(
@@ -82,7 +85,8 @@ class AuthService(
                 firstName = registerRequest.firstName,
                 lastName = registerRequest.lastName,
                 passw = passwordEncoder.encode(registerRequest.password),
-                role = Role.RECIPE_USER
+                role = Role.RECIPE_USER,
+                tokenValidAt = Date()
             )
         )
     }
@@ -94,11 +98,27 @@ class AuthService(
                 loginRequest.password
             )
         )
+
         val user = userRepository.findByEmail(loginRequest.email).orElseThrow()
-        val accessToken = jwtService.createToken(user, JwtType.ACCESS)
-        val refreshToken = jwtService.createToken(user, JwtType.REFRESH)
+
+        val loginDate = Date()
+        user.tokenValidAt = loginDate
+        userRepository.save(user)
+
+        val calendar = Calendar.getInstance()
+        calendar.time = loginDate
+        calendar.add(Calendar.SECOND, 1)
+
+        val accessToken = jwtService.createToken(user, JwtType.ACCESS, calendar.time)
+        val refreshToken = jwtService.createToken(user, JwtType.REFRESH, calendar.time)
 
         return LoginResponse(accessToken, refreshToken, user.email, user.firstName, user.lastName)
+    }
+
+    fun logout() {
+        val user: User = SecurityContextHolder.getContext().authentication.principal as User
+        user.tokenValidAt = Date()
+        userRepository.save(user)
     }
 
     fun refresh(request: HttpServletRequest): RefreshResponse {
