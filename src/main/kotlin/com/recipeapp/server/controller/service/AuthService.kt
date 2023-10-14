@@ -25,59 +25,15 @@ class AuthService(
     val userRepository: UserRepository,
     val passwordEncoder: BCryptPasswordEncoder,
     val jwtService: JwtService,
-    val authenticationManager: AuthenticationManager
+    val authenticationManager: AuthenticationManager,
+    val formService: FormService
 ) {
 
-    private fun checkPasswordStrength(password: String): String {
-        if (password.trim() == "") {
-            return "Password must not be empty"
-        }
-        if (password.length < 8) {
-            return "Password must be at least 8 characters"
-        }
-
-        if (!"[0-9]".toRegex().containsMatchIn(password)) {
-            return "Password must contain at least one numeric character"
-        }
-
-        if (!"[\\§\\\$\\%\\&\\/\\=\\\\\\+\\#\\-\\_\\.]".toRegex().containsMatchIn(password)) {
-            return "Password must contain at least one of the following characters: §$%&/=\\+#-_."
-        }
-
-        if (!"[0-9a-zA-Z\\§\\\$\\%\\&\\/\\=\\\\\\+\\#\\-\\_\\.]*".toRegex().matches(password)) {
-            return "Password can only contain alphanumeric characters and §$%&/=\\+#-_."
-        }
-
-        return ""
-    }
-
     fun register(registerRequest: RegisterRequest) {
-
-        if (userRepository.findByEmail(registerRequest.email).isPresent) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail already exists")
-        }
-
-        if (registerRequest.email.trim() == "") {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail must not be empty")
-        }
-
-        if (!"^\\S+@\\S+$".toRegex().matches(registerRequest.email)) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "E-Mail is invalid")
-        }
-
-        if (registerRequest.lastName.trim() == "") {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Last name must not be empty")
-        }
-
-        if (registerRequest.firstName.trim() == "") {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "First name must not be empty")
-        }
-
-        val passwordStrength = checkPasswordStrength(registerRequest.password)
-
-        if (passwordStrength != "") {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, passwordStrength)
-        }
+        formService.validateNewEmail(registerRequest.email)
+        formService.validateNotEmpty(registerRequest.lastName, "Last name")
+        formService.validateNotEmpty(registerRequest.firstName, "First name")
+        formService.validatePassword(registerRequest.password)
 
         userRepository.save(
             User(

@@ -6,5 +6,7 @@ enum class Permission(
     RECIPE_CREATE("recipe:create"),
     RECIPE_READ("recipe:read"),
     RECIPE_UPDATE("recipe:update"),
-    RECIPE_DELETE("recipe:delete")
+    RECIPE_DELETE("recipe:delete"),
+    PROFILE_EDIT("profile:edit"),
+    PROFILE_CHANGE_PASSWORD("profile:change-password")
 }

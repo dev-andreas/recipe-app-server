@@ -11,7 +11,9 @@ enum class Role(
             Permission.RECIPE_CREATE,
             Permission.RECIPE_READ,
             Permission.RECIPE_UPDATE,
-            Permission.RECIPE_DELETE
+            Permission.RECIPE_DELETE,
+            Permission.PROFILE_EDIT,
+            Permission.PROFILE_CHANGE_PASSWORD
         )
     );
 
