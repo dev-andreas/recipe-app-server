@@ -19,10 +19,10 @@ class RecipeController(
 ) {
 
     @ExceptionHandler(NoSuchElementException::class)
-    fun handeNoSuchElement(e: NoSuchElementException) = ResponseEntity(ErrorResponse("Recipe not found."), HttpStatus.NOT_FOUND)
+    fun handeNoSuchElement(e: NoSuchElementException) = ResponseEntity(ErrorResponse(ErrorResponse.RECIPE_NOT_FOUND), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleJsonParse(e: HttpMessageNotReadableException) = ResponseEntity(ErrorResponse("Couldn't parse JSON."), HttpStatus.BAD_REQUEST)
+    fun handleJsonParse(e: HttpMessageNotReadableException) = ResponseEntity(ErrorResponse(ErrorResponse.COULD_NOT_PARSE_JSON), HttpStatus.BAD_REQUEST)
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('recipe:read')")

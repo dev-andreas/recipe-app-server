@@ -21,10 +21,10 @@ class AuthController(
     fun handeResponseStatus(e: ResponseStatusException) = ResponseEntity(ErrorResponse(e.reason ?: ""), e.statusCode)
 
     @ExceptionHandler(NoSuchElementException::class)
-    fun handeNoSuchElement(e: NoSuchElementException) = ResponseEntity(ErrorResponse("User not found."), HttpStatus.NOT_FOUND)
+    fun handeNoSuchElement(e: NoSuchElementException) = ResponseEntity(ErrorResponse(ErrorResponse.USER_NOT_FOUND), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(AuthenticationException::class)
-    fun handleAuthentication(e: AuthenticationException) = ResponseEntity(ErrorResponse("User could not be authenticated."), HttpStatus.UNAUTHORIZED)
+    fun handleAuthentication(e: AuthenticationException) = ResponseEntity(ErrorResponse(ErrorResponse.USER_NOT_AUTHENTICATED), HttpStatus.UNAUTHORIZED)
 
     @PostMapping("/register")
     fun register(@RequestBody registerRequest: RegisterRequest) = authService.register(registerRequest)

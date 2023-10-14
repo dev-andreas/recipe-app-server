@@ -30,7 +30,7 @@ class JwtFilter(
         val authHeader = request.getHeader("Authorization")
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.status = 401
-            response.writer.write(jacksonObjectMapper().writeValueAsString(ErrorResponse("No bearer token provided.")))
+            response.writer.write(jacksonObjectMapper().writeValueAsString(ErrorResponse(ErrorResponse.NO_BEARER_TOKEN)))
             return
         }
 
@@ -45,7 +45,7 @@ class JwtFilter(
             )
         } else {
             response.status = 401
-            response.writer.write(jacksonObjectMapper().writeValueAsString(ErrorResponse("Bearer token is invalid.")))
+            response.writer.write(jacksonObjectMapper().writeValueAsString(ErrorResponse(ErrorResponse.BEARER_TOKEN_INVALID)))
             return
         }
 

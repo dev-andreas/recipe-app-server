@@ -2,6 +2,7 @@ package com.recipeapp.server.controller.service
 
 import com.recipeapp.server.controller.request.LoginRequest
 import com.recipeapp.server.controller.request.RegisterRequest
+import com.recipeapp.server.controller.response.ErrorResponse
 import com.recipeapp.server.controller.response.LoginResponse
 import com.recipeapp.server.controller.response.RefreshResponse
 import com.recipeapp.server.repository.UserRepository
@@ -80,14 +81,14 @@ class AuthService(
     fun refresh(request: HttpServletRequest): RefreshResponse {
         val authHeader = request.getHeader("Authorization")
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "No bearer token provided.")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, ErrorResponse.BEARER_TOKEN_INVALID)
         }
 
         val jwt = authHeader.substring(7)
         val verification = jwtService.verify(jwt, JwtType.REFRESH)
 
         if (verification.isEmpty) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bearer token is invalid.")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, ErrorResponse.BEARER_TOKEN_INVALID)
         }
         val user = verification.get()
         return RefreshResponse(jwtService.createToken(user, JwtType.ACCESS))

@@ -21,7 +21,7 @@ class ProfileController(
     fun handeResponseStatus(e: ResponseStatusException) = ResponseEntity(ErrorResponse(e.reason ?: ""), e.statusCode)
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleJsonParse(e: HttpMessageNotReadableException) = ResponseEntity(ErrorResponse("Couldn't parse JSON."), HttpStatus.BAD_REQUEST)
+    fun handleJsonParse(e: HttpMessageNotReadableException) = ResponseEntity(ErrorResponse(ErrorResponse.COULD_NOT_PARSE_JSON), HttpStatus.BAD_REQUEST)
 
     @PostMapping("/edit")
     @PreAuthorize("hasAuthority('profile:edit')")
